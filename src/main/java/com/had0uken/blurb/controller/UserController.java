@@ -1,0 +1,70 @@
+package com.had0uken.blurb.controller;
+
+import com.had0uken.blurb.model.user.Role;
+import com.had0uken.blurb.model.user.User;
+import com.had0uken.blurb.payload.responses.Response;
+import com.had0uken.blurb.service.AuthService;
+import com.had0uken.blurb.service.CustomUserDetailsService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/users")
+@RequiredArgsConstructor
+public class UserController {
+
+    private final CustomUserDetailsService userService;
+    private final AuthService authService;
+
+    @GetMapping("/{username}/posts")
+    public ResponseEntity<Response> getPostsByUser(@PathVariable String username) {
+        Response response = userService.getPostsByUser(username);
+        return new ResponseEntity<>(response, response.getStatus());
+    }
+
+    @GetMapping("/{username}/stories")
+    public ResponseEntity<Response> getStoriesByUser(@PathVariable String username) {
+        Response response = userService.getStoriesByUser(username);
+        return new ResponseEntity<>(response, response.getStatus());
+    }
+
+    @PostMapping("/")
+    public ResponseEntity<Response> addNewUser(@RequestBody User newUser, Authentication authentication) {
+        Response response = userService.addNewUser(newUser, authentication, authService.getEncoder());
+        return new ResponseEntity<>(response, response.getStatus());
+    }
+
+    @PutMapping("/{username}")
+    public ResponseEntity<Response> updateUser(@PathVariable String username, @RequestBody User updUser, Authentication authentication) {
+        Response response = userService.updateUser(username, updUser, authentication, authService.getEncoder());
+        return new ResponseEntity<>(response, response.getStatus());
+    }
+
+    @DeleteMapping("/{username}")
+    public ResponseEntity<Response> deleteUser(@PathVariable String username, Authentication authentication) {
+        Response response = userService.deleteUser(username, authentication);
+        return new ResponseEntity<>(response, response.getStatus());
+    }
+
+    @PutMapping("/{username}/admin")
+    public ResponseEntity<Response> setAdmin(@PathVariable String username, Authentication authentication) {
+        Response response = userService.setUserRole(username, authentication, Role.ADMIN);
+        return new ResponseEntity<>(response, response.getStatus());
+    }
+
+
+    @PutMapping("/{username}/moderator")
+    public ResponseEntity<Response> setModerator(@PathVariable String username, Authentication authentication) {
+        Response response = userService.setUserRole(username, authentication, Role.MODERATOR);
+        return new ResponseEntity<>(response, response.getStatus());
+    }
+
+    @PutMapping("/{username}/user")
+    public ResponseEntity<Response> setUser(@PathVariable String username, Authentication authentication) {
+        Response response = userService.setUserRole(username, authentication, Role.USER);
+        return new ResponseEntity<>(response, response.getStatus());
+    }
+
+}
